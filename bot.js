@@ -75,9 +75,11 @@ client.on('messageCreate', (message) => {
 
         const members = message.guild.members;
         const member = members.cache.get(args[0]);
+        embeds.setKickSucceededEmbed(member);
+        
         if (members) {
             members.kick(args[0])
-                .then((member) => message.channel.send({ embeds: [embeds.kickSucceded.setDescription(`${embeds.successEmote} ${member} was kicked successfully`)] }))
+                .then((member) => message.channel.send({ embeds: [embeds.kickSucceeded] }))
                 .catch((err) => message.channel.send({ embeds: [embeds.kickFailed] }));
         } else {
             message.reply('Member not found');

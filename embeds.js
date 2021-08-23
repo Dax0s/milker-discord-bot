@@ -29,7 +29,7 @@ const kickFailed = new MessageEmbed()
     .setColor('#CC0101')
     .setDescription(`${errorEmote} couldn't kick the user`);
 
-const kickSucceded = new MessageEmbed()
+const kickSucceeded = new MessageEmbed()
     .setColor('#42B482')
     .setDescription(`${successEmote} user kicked successfully`);
 
@@ -42,9 +42,15 @@ const kickHelp = new MessageEmbed()
     //     { name: 'Usage', value: `${PREFIX}kick [user]`, inline: false }
     // );
 
+function setKickSucceededEmbed(member) {
+	kickSucceeded.setDescription(`${successEmote} ${member} was kicked successfully`);
+}
+
 module.exports.example = exampleEmbed;
 module.exports.kickFailed = kickFailed;
-module.exports.kickSucceded = kickSucceded;
+module.exports.kickSucceeded = kickSucceeded;
 module.exports.kickHelp = kickHelp;
 
 module.exports.successEmote = successEmote;
+
+module.exports.setKickSucceededEmbed = setKickSucceededEmbed;
