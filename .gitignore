@@ -1,1 +1,5 @@
+# Environment file with private info
 .env
+
+# Just some example code for the bot
+exampleCode.js
