@@ -42,10 +42,18 @@ const kickHelp = new MessageEmbed()
     .setColor('#dae5f0')
     .setTitle(`Command: ${PREFIX}kick`)
 	.setDescription(`**Description:** Kick a member
-					 **Usage:** ${PREFIX}kick [user]`);
+					 **Usage:** ${PREFIX}kick [user] [reason]`);
+
+const memberNotFound = new MessageEmbed()
+    .setColor('#CC0101')
+    .setDescription(`${errorEmote} member not found`);
 
 function setEmbedDescription(embed, value) {
 	embed.setDescription(value);
+}
+
+function setEmbedAuthor(embed, authorName, authorAvatar) {
+	embed.setAuthor(authorName, authorAvatar);
 }
 
 // Embeds
@@ -53,17 +61,19 @@ const embeds = { 'example': exampleEmbed,
 				 'kickFailed': kickFailed,
 				 'kickSucceeded': kickSucceeded, 
 				 'noKickPermissions': noKickPermissions,
-				 'kickHelp': kickHelp};
+				 'kickHelp': kickHelp,
+				 'memberNotFound': memberNotFound };
 
 module.exports.embeds = embeds;
 
 // Emotes
 const emotes = { 'errorEmote': errorEmote,
-				 'successEmote': successEmote};
+				 'successEmote': successEmote };
 
 module.exports.emotes = emotes;
 
 // Functions
-const functions = { 'setEmbedDescription': setEmbedDescription };
+const functions = { 'setEmbedDescription': setEmbedDescription,
+					'setEmbedAuthor': setEmbedAuthor };
 
 module.exports.functions = functions;

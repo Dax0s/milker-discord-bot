@@ -35,56 +35,64 @@ client.on('messageCreate', (message) => {
 
     console.log(command, args, '\n');
 
-    // Sends the avatar of the user whom used the command
-    if (command === 'avatar') {
-        message.channel.send(message.author.displayAvatarURL());
-    }
+    switch (command) {
 
-    // Activates the getInfo() function
-    else if (command === 'getInfo') {
-        console.log(message.guild.members.fetch('483377420494176258'));
-    }
+        // Sends the avatar of the user whom used the command
+        case 'avatar':
+            message.channel.send(message.author.displayAvatarURL());
+            // message.channel.send(client.user.displayAvatarURL());
+            break;
 
-    // Command to test random things
-    else if (command === 'test') {
-        message.channel.send({ embeds: [embeds.kickHelp] });
-    }
+        // Activates the getInfo() function
+        case 'getInfo':
+            console.log(message.guild.members.fetch('483377420494176258'));
+            break;
 
-    // Bot sends a message to a channel different from where it got the message
-    else if (command === 'fakeChannel')
-    {
-        console.log(message);
-        console.log('\n');
-        message.channelId = '878648104864346112';
-        console.log(message);
-        console.log('\n');
-        message.channel.send('Yeaaaah booiiii');
-    }
+        // Command to test random things
+        case 'test':
+            message.channel.send({ embeds: [embeds.example] });
+            break;
 
-    // Logs out the mentions in a message
-    else if (command === 'checkMentions') {
-        console.log(message.mentions);
-    }
+        // Bot sends a message to a channel different from where it got the message
+        case 'fakeChannel':
+            console.log(message);
+            console.log('\n');
+            message.channelId = '878648104864346112';
+            console.log(message);
+            console.log('\n');
+            message.channel.send('Yeaaaah booiiii');
+            break;
 
-    // Kicks the member with the specified ID
-    else if (command === 'kick') {
-        const authorMemberObj = message.guild.members.cache.get(message.author.id);
-        if (!authorMemberObj.permissions.has('KICK_MEMBERS')) return message.reply({ embeds: [embeds.noKickPermissions] });
-        if (args.length === 0) return message.channel.send({ embeds: [embeds.kickHelp] });
-        
-        args[0] = args[0].replace(/[^0-9]/g, '');
+        // Kicks the member with the specified ID
+        case 'kick':
+            const authorMemberObj = message.guild.members.cache.get(message.author.id);
+            if (!authorMemberObj.permissions.has('KICK_MEMBERS')) return message.reply({ embeds: [embeds.noKickPermissions] });
+            if (args.length === 0) return message.channel.send({ embeds: [embeds.kickHelp] });
+            
+            args[0] = args[0].replace(/[^0-9]/g, '');
 
-        const members = message.guild.members;
-        const member = members.cache.get(args[0]);
-        functions.setEmbedDescription(embeds.kickSucceeded, `${emotes.successEmote} ${member} was kicked successfully`);
-        
-        if (members) {
-            members.kick(args[0])
-                .then((member) => message.channel.send({ embeds: [embeds.kickSucceeded] }))
-                .catch((err) => message.channel.send({ embeds: [embeds.kickFailed] }));
-        } else {
-            message.reply('Member not found');
-        }
+            const members = message.guild.members;
+            const member = members.cache.get(args[0]);
+            functions.setEmbedDescription(embeds.kickSucceeded, `${emotes.successEmote} ${member} had to be removed by force`);
+            functions.setEmbedAuthor(embeds.kickSucceeded, message.author.tag, message.author.displayAvatarURL())
+            
+            let reason = [ ...args ]
+                .toString()
+                .replace(/[0-9]/g, '')
+                .slice(1)
+                .replaceAll(',', ' ');
+
+            console.log(reason);
+
+            if (members && member in members) {
+                members.kick(args[0], reason)
+                    .then((member) => message.channel.send({ embeds: [embeds.kickSucceeded] }))
+                    .catch((err) => message.channel.send({ embeds: [embeds.kickFailed] }));
+            } else {
+                message.channel.send({ embeds: [embeds.memberNotFound] });
+            }
+
+            break;
     }
 });
 
