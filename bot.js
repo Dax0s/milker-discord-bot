@@ -6,7 +6,20 @@ require('dotenv').config();
 const discord = require('discord.js');
 const { MessageEmbed } = require('discord.js');
 
-const client = new discord.Client({ intents: ['GUILD_MESSAGES', 'GUILDS'] });
+const client = new discord.Client({ intents: ['GUILDS', 
+                                              'GUILD_MEMBERS', // Privileged 
+                                              'GUILD_BANS', 
+                                              'GUILD_EMOJIS_AND_STICKERS', 
+                                              'GUILD_INTEGRATIONS',
+                                              'GUILD_INVITES', 
+                                              'GUILD_VOICE_STATES',
+                                              'GUILD_PRESENCES', // Privileged
+                                              'GUILD_MESSAGES',
+                                              'GUILD_MESSAGE_REACTIONS',
+                                              'GUILD_MESSAGE_TYPING', 
+                                              'DIRECT_MESSAGES', 
+                                              'DIRECT_MESSAGE_REACTIONS',
+                                              'DIRECT_MESSAGE_TYPING'] });
 
 const PREFIX = process.env.PREFIX;
 
@@ -45,7 +58,7 @@ client.on('messageCreate', (message) => {
 
         // Activates the getInfo() function
         case 'getInfo':
-            console.log(message.guild.members.fetch('483377420494176258'));
+            getInfo();
             break;
 
         // Command to test random things
@@ -65,33 +78,31 @@ client.on('messageCreate', (message) => {
 
         // Kicks the member with the specified ID
         case 'kick':
-            const authorMemberObj = message.guild.members.cache.get(message.author.id);
-            if (!authorMemberObj.permissions.has('KICK_MEMBERS')) return message.reply({ embeds: [embeds.noKickPermissions] });
+            message.delete();
+            if (!message.member.permissions.has('KICK_MEMBERS')) return message.channel.send({ embeds: [embeds.noKickPermissions] });
+            
+            functions.setEmbedAuthor(message.author.tag, message.author.displayAvatarURL());
             if (args.length === 0) return message.channel.send({ embeds: [embeds.kickHelp] });
             
             args[0] = args[0].replace(/[^0-9]/g, '');
-
-            const members = message.guild.members;
-            const member = members.cache.get(args[0]);
-            functions.setEmbedDescription(embeds.kickSucceeded, `${emotes.successEmote} ${member} had to be removed by force`);
-            functions.setEmbedAuthor(embeds.kickSucceeded, message.author.tag, message.author.displayAvatarURL())
             
+            const member = message.guild.members.cache.get(args[0]);
+            functions.setEmbedDescription(embeds.kickSucceeded, `${emotes.successEmote} ${member} had to be removed by force`);
+            functions.setEmbedDescription(embeds.kickFailed, `${emotes.errorEmote}${member} was stronger than me`);
+
             let reason = [ ...args ]
                 .toString()
                 .replace(/[0-9]/g, '')
                 .slice(1)
                 .replaceAll(',', ' ');
 
-            console.log(reason);
-
-            if (members && member in members) {
-                members.kick(args[0], reason)
+            if (member) {
+                member.kick(args[0], reason)
                     .then((member) => message.channel.send({ embeds: [embeds.kickSucceeded] }))
                     .catch((err) => message.channel.send({ embeds: [embeds.kickFailed] }));
             } else {
                 message.channel.send({ embeds: [embeds.memberNotFound] });
             }
-
             break;
     }
 });

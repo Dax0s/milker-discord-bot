@@ -52,19 +52,29 @@ function setEmbedDescription(embed, value) {
 	embed.setDescription(value);
 }
 
-function setEmbedAuthor(embed, authorName, authorAvatar) {
-	embed.setAuthor(authorName, authorAvatar);
-}
-
 // Embeds
-const embeds = { 'example': exampleEmbed,
-				 'kickFailed': kickFailed,
-				 'kickSucceeded': kickSucceeded, 
-				 'noKickPermissions': noKickPermissions,
-				 'kickHelp': kickHelp,
-				 'memberNotFound': memberNotFound };
+let embeds = { 'example': exampleEmbed,
+			   'kickFailed': kickFailed,
+			   'kickSucceeded': kickSucceeded, 
+			   'noKickPermissions': noKickPermissions,
+			   'kickHelp': kickHelp,
+			   'memberNotFound': memberNotFound };
+
+// Embeds which require an author
+let embedsArr = [ exampleEmbed,
+				  kickFailed,
+				  kickSucceeded,
+				  noKickPermissions,
+				  kickHelp,
+				  memberNotFound ];
 
 module.exports.embeds = embeds;
+
+function setEmbedAuthor(authorName, authorAvatar) {
+	embedsArr.forEach(element => {
+		element.setAuthor(authorName, authorAvatar);
+	});
+}
 
 // Emotes
 const emotes = { 'errorEmote': errorEmote,
