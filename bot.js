@@ -79,27 +79,91 @@ client.on('messageCreate', (message) => {
         // Kicks the member with the specified ID
         case 'kick':
             message.delete();
-            if (!message.member.permissions.has('KICK_MEMBERS')) return message.channel.send({ embeds: [embeds.noKickPermissions] });
-            
             functions.setEmbedAuthor(message.author.tag, message.author.displayAvatarURL());
+
+            if (!message.member.permissions.has('KICK_MEMBERS')) return message.channel.send({ embeds: [embeds.noKickPermissions] });
             if (args.length === 0) return message.channel.send({ embeds: [embeds.kickHelp] });
             
             args[0] = args[0].replace(/[^0-9]/g, '');
             
-            const member = message.guild.members.cache.get(args[0]);
-            functions.setEmbedDescription(embeds.kickSucceeded, `${emotes.successEmote} ${member} had to be removed by force`);
-            functions.setEmbedDescription(embeds.kickFailed, `${emotes.errorEmote}${member} was stronger than me`);
+            var member = message.guild.members.cache.get(args[0]);
+            args[0] = '';
 
-            let reason = [ ...args ]
+            functions.setEmbedDescription(embeds.kickSucceeded, `${emotes.successEmote} ${member} had to be removed by force`);
+            functions.setEmbedDescription(embeds.kickFailed, `${emotes.errorEmote} ${member} was stronger than me`);
+
+            var reason = [ ...args ]
                 .toString()
-                .replace(/[0-9]/g, '')
+                .slice(1)
+                .replaceAll(',', ' ');
+
+            console.log(...args);
+            console.log(reason);
+
+            if (member) {
+                member.kick(reason)
+                    .then((member) => message.channel.send({ embeds: [embeds.kickSucceeded] }))
+                    .catch((err) => message.channel.send({ embeds: [embeds.kickFailed] }));
+            } else {
+                message.channel.send({ embeds: [embeds.memberNotFound] });
+            }
+            break;
+        
+        // Bans the member with the specified ID
+        case 'ban':
+            message.delete();
+            functions.setEmbedAuthor(message.author.tag, message.author.displayAvatarURL());
+            
+            if (args.length === 0) return message.channel.send({ embeds: [embeds.banHelp] });
+            if (!message.member.permissions.has('BAN_MEMBERS')) return message.channel.send({ embeds: [embeds.noBanPermissions] });
+        
+            args[0] = args[0].replace(/[^0-9]/g, '');
+            
+            var member = message.guild.members.cache.get(args[0]);
+            args[0] = '';
+
+            functions.setEmbedDescription(embeds.banSucceeded, `${emotes.successEmote} ${member} was banished to the far lands`);
+            functions.setEmbedDescription(embeds.banFailed, `${emotes.errorEmote} ${message.author} hmm, seems like I lost my ban hammer`);
+
+            var reason = [ ...args ]
+                .toString()
                 .slice(1)
                 .replaceAll(',', ' ');
 
             if (member) {
-                member.kick(args[0], reason)
-                    .then((member) => message.channel.send({ embeds: [embeds.kickSucceeded] }))
-                    .catch((err) => message.channel.send({ embeds: [embeds.kickFailed] }));
+                member.ban({ reason: reason })
+                    .then((member) => message.channel.send({ embeds: [embeds.banSucceeded] }))
+                    .catch((err) => message.channel.send({ embeds: [embeds.banFailed] }));
+            } else {
+                message.channel.send({ embeds: [embeds.memberNotFound] });
+            }
+            break;
+
+        // Unbans the member with the specified ID
+        case 'unban':
+            message.delete();
+            functions.setEmbedAuthor(message.author.tag, message.author.displayAvatarURL());
+            
+            if (args.length === 0) return message.channel.send({ embeds: [embeds.banHelp] });
+            if (!message.member.permissions.has('BAN_MEMBERS')) return message.channel.send({ embeds: [embeds.noBanPermissions] });
+            
+            userID = args[0].replace(/[^0-9]/g, '').toString();
+            args[0] = '';
+            
+            var reason = [ ...args ]
+                .toString()
+                .slice(1)
+                .replaceAll(',', ' ');
+            
+            var bannedUsersList = message.guild.bans;
+
+            if (bannedUsersList.cache.has(userID)) {
+                bannedUsersList.remove(userID, reason)
+                    .then((user) => {
+                        functions.setEmbedDescription(embeds.banSucceeded, `${emotes.successEmote} ${user.username} can now return from the far lands`);
+                        message.channel.send({ embeds: [embeds.banSucceeded] })
+                    })
+                    .catch((err) => message.channel.send({ embeds: [embeds.unbanFailed] }));
             } else {
                 message.channel.send({ embeds: [embeds.memberNotFound] });
             }
