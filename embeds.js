@@ -36,21 +36,28 @@ const kickSucceeded = new MessageEmbed()
 const kickHelp = new MessageEmbed()
     .setColor('#dae5f0')
     .setTitle(`Command: ${PREFIX}kick`)
-    .addField('Description: ', 'Kick a member', false);
-    // .setFields(
-    //     { name: 'Description: ', value: 'Kick a member', inline: false },
-    //     { name: 'Usage', value: `${PREFIX}kick [user]`, inline: false }
-    // );
+	.setDescription(`**Description:** Kick a member
+					 **Usage:** ${PREFIX}kick [user]`);
 
-function setKickSucceededEmbed(member) {
-	kickSucceeded.setDescription(`${successEmote} ${member} was kicked successfully`);
+function setEmbedDescription(embed, value) {
+	embed.setDescription(value);
 }
 
-module.exports.example = exampleEmbed;
-module.exports.kickFailed = kickFailed;
-module.exports.kickSucceeded = kickSucceeded;
-module.exports.kickHelp = kickHelp;
+// Embeds
+const embeds = { 'example': exampleEmbed,
+				 'kickFailed': kickFailed,
+				 'kickSucceeded': kickSucceeded, 
+				 'kickHelp': kickHelp};
 
-module.exports.successEmote = successEmote;
+module.exports.embeds = embeds;
 
-module.exports.setKickSucceededEmbed = setKickSucceededEmbed;
+// Emotes
+const emotes = { 'errorEmote': errorEmote,
+				 'successEmote': successEmote};
+
+module.exports.emotes = emotes;
+
+// Functions
+const functions = { 'setEmbedDescription': setEmbedDescription };
+
+module.exports.functions = functions;

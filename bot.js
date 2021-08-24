@@ -1,4 +1,5 @@
-const embeds = require('./embeds');
+// const embeds = require('./embeds');
+const { embeds, emotes, functions } = require('./embeds');
 
 require('dotenv').config();
 
@@ -69,13 +70,13 @@ client.on('messageCreate', (message) => {
     else if (command === 'kick') {
         const authorMemberObj = message.guild.members.cache.get(message.author.id);
         if (!authorMemberObj.permissions.has('KICK_MEMBERS')) return message.reply('You do not have the permissions to kick someone');
-
-        if (args.length === 0) return message.reply('Please provide an ID or mention someone');
+        if (args.length === 0) return message.channel.send({ embeds: [embeds.kickHelp] });
+        
         args[0] = args[0].replace(/[^0-9]/g, '');
 
         const members = message.guild.members;
         const member = members.cache.get(args[0]);
-        embeds.setKickSucceededEmbed(member);
+        functions.setEmbedDescription(embeds.kickSucceeded, `${emotes.successEmote} ${member} was kicked successfully`);
         
         if (members) {
             members.kick(args[0])
