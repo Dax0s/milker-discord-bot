@@ -33,6 +33,11 @@ const kickSucceeded = new MessageEmbed()
     .setColor('#42B482')
     .setDescription(`${successEmote} user kicked successfully`);
 
+const noKickPermissions = new MessageEmbed()
+	.setColor('#CC0101')
+	.setDescription(`${errorEmote} You have no power here, peasant!`);
+	// .setDescription(`${errorEmote} You do not have the permissions to kick someone`);
+
 const kickHelp = new MessageEmbed()
     .setColor('#dae5f0')
     .setTitle(`Command: ${PREFIX}kick`)
@@ -47,6 +52,7 @@ function setEmbedDescription(embed, value) {
 const embeds = { 'example': exampleEmbed,
 				 'kickFailed': kickFailed,
 				 'kickSucceeded': kickSucceeded, 
+				 'noKickPermissions': noKickPermissions,
 				 'kickHelp': kickHelp};
 
 module.exports.embeds = embeds;

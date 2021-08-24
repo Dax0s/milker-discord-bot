@@ -69,7 +69,7 @@ client.on('messageCreate', (message) => {
     // Kicks the member with the specified ID
     else if (command === 'kick') {
         const authorMemberObj = message.guild.members.cache.get(message.author.id);
-        if (!authorMemberObj.permissions.has('KICK_MEMBERS')) return message.reply('You do not have the permissions to kick someone');
+        if (!authorMemberObj.permissions.has('KICK_MEMBERS')) return message.reply({ embeds: [embeds.noKickPermissions] });
         if (args.length === 0) return message.channel.send({ embeds: [embeds.kickHelp] });
         
         args[0] = args[0].replace(/[^0-9]/g, '');
