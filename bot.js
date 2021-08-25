@@ -1,10 +1,7 @@
-// const embeds = require('./embeds');
 const { embeds, emotes, functions } = require('./embeds');
 
-require('dotenv').config();
-
 const discord = require('discord.js');
-const { MessageEmbed } = require('discord.js');
+const fs = require('fs');
 
 const client = new discord.Client({ intents: ['GUILDS', 
                                               'GUILD_MEMBERS', // Privileged 
@@ -21,39 +18,61 @@ const client = new discord.Client({ intents: ['GUILDS',
                                               'DIRECT_MESSAGE_REACTIONS',
                                               'DIRECT_MESSAGE_TYPING'] });
 
-const PREFIX = process.env.PREFIX;
 
-client.login(process.env.TOKEN);
+// Jsons paths
+const configJsonPath = './jsons/config.json';
+
+// Jsons
+let configJson = require(configJsonPath);
+
+// Jsons booleans to check if they have changed
+let configJsonBool = false;
 
 // Errors
 const resolveError = 'Couldn\'t resolve the user id to unban.';
 const unknownBanError = 'Unknown Ban';
 
+// If true, messages will be deleted after sending back the command embed
+let deleteMessage = false;
+
+let prefix = configJson.prefix;
+
+client.login(configJson.token);
 
 // Event listener which triggers when the discord bot logs in
 client.on('ready', () => {
     console.log('\n' + `Logged in as ${client.user.tag}!` + '\n');
-    getInfo();
-    console.log('\n');
+    client.user.setActivity('Milking you');
 });
-
 
 // Event listener which triggers when someone sends a message
 client.on('messageCreate', (message) => {
     if (message == null) return;
 
     // Checks if message starts with the prefix and if it wasn't sent by a bot
-    if (!message.content.startsWith(PREFIX) || message.author.bot) return;
+    if (!message.content.startsWith(prefix) || message.author.bot) return;
     
     const [ ...messageArr ] = message.content
         .trim()
-        .substring(PREFIX.length)
+        .substring(prefix.length)
         .split(/\s+/); // Splits the message.content into an array by using a regex. \s - whitespace. + - one or more repetitions
 
     functions.setEmbedAuthor(message.author.tag, message.author.displayAvatarURL());
 
-    const [ command ] = messageArr;
+    let [ command ] = messageArr;
+    command = command.toLowerCase();
     switch (command) {
+
+        // Changes the prefix into the specified one
+        case 'prefix':
+            var [ , newPrefix ] = messageArr;
+            
+            if (!newPrefix) return message.channel.send(`The prefix for this server is ${prefix}`);
+            
+            configJson.prefix = newPrefix;
+            configJson = JSON.stringify(configJson, null, '\t');
+            fs.writeFile(configJsonPath, configJson, (err) => err && console.error(err));
+            break;
 
         // Sends the avatar of the user whom used the command
         case 'avatar':
@@ -85,7 +104,7 @@ client.on('messageCreate', (message) => {
 
         // Kicks the member with the specified ID
         case 'kick':
-            message.delete();
+            deleteMessage && message.delete();
 
             var [ , userID, ...reason ] = messageArr;
             
@@ -102,8 +121,6 @@ client.on('messageCreate', (message) => {
                 .toString()
                 .replaceAll(',', ' ');
 
-            console.log(reason);
-
             if (member) {
                 member.kick(reason)
                     .then((member) => message.channel.send({ embeds: [embeds.kickSucceeded] }))
@@ -115,7 +132,7 @@ client.on('messageCreate', (message) => {
         
         // Bans the member with the specified ID
         case 'ban':
-            message.delete();
+            deleteMessage && message.delete();
 
             var [ , userID, ...reason ] = messageArr;
             
@@ -132,18 +149,15 @@ client.on('messageCreate', (message) => {
                 .toString()
                 .replaceAll(',', ' ');
 
-            if (member) {
-                member.ban({ reason: reason })
-                    .then((member) => message.channel.send({ embeds: [embeds.banSucceeded] }))
-                    .catch((err) => message.channel.send({ embeds: [embeds.banFailed] }));
-            } else {
-                message.channel.send({ embeds: [embeds.memberNotFound] });
-            }
+            member ? member.ban({ reason: reason })
+                .then((member) => message.channel.send({ embeds: [embeds.banSucceeded] }))
+                .catch((err) => message.channel.send({ embeds: [embeds.banFailed] }))
+                : message.channel.send({ embeds: [embeds.memberNotFound] });
             break;
 
         // Unbans the member with the specified ID
         case 'unban':
-            message.delete();
+            deleteMessage && message.delete();
             
             var [ , userID, ...reason ] = messageArr;
             

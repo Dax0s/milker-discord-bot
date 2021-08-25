@@ -1,5 +1,8 @@
 # Environment file with private info
 .env
 
+# Jsons folder with private info
+jsons/
+
 # Just some example code for the bot
 exampleCode.js
