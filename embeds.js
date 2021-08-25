@@ -104,7 +104,7 @@ let embeds = { 'example': exampleEmbed,
 			   'banHelp': banHelp,
 			   // Unban embeds
 			   'unbanFailed': unbanFailed,
-			   'unban': unbanSucceeded,
+			   'unbanSucceeded': unbanSucceeded,
 			   'unbanHelp': unbanHelp,
 
 			   'memberNotFound': memberNotFound };

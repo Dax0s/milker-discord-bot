@@ -25,6 +25,10 @@ const PREFIX = process.env.PREFIX;
 
 client.login(process.env.TOKEN);
 
+// Errors
+const resolveError = 'Couldn\'t resolve the user id to unban.';
+const unknownBanError = 'Unknown Ban';
+
 
 // Event listener which triggers when the discord bot logs in
 client.on('ready', () => {
@@ -38,16 +42,17 @@ client.on('ready', () => {
 client.on('messageCreate', (message) => {
     if (message == null) return;
 
-    // Checks if message starts with the prefix and it wasn't sent by a bot
+    // Checks if message starts with the prefix and if it wasn't sent by a bot
     if (!message.content.startsWith(PREFIX) || message.author.bot) return;
     
-    const [ command, ...args ] = message.content
+    const [ ...messageArr ] = message.content
         .trim()
         .substring(PREFIX.length)
-        .split(/\s+/);
+        .split(/\s+/); // Splits the message.content into an array by using a regex. \s - whitespace. + - one or more repetitions
 
-    console.log(command, args, '\n');
+    functions.setEmbedAuthor(message.author.tag, message.author.displayAvatarURL());
 
+    const [ command ] = messageArr;
     switch (command) {
 
         // Sends the avatar of the user whom used the command
@@ -63,7 +68,9 @@ client.on('messageCreate', (message) => {
 
         // Command to test random things
         case 'test':
-            message.channel.send({ embeds: [embeds.example] });
+            if (!message.mentions) return message.channel.send('No mentions');
+            console.log(message.mentions);
+            // message.channel.send(message.mentions);
             break;
 
         // Bot sends a message to a channel different from where it got the message
@@ -79,25 +86,22 @@ client.on('messageCreate', (message) => {
         // Kicks the member with the specified ID
         case 'kick':
             message.delete();
-            functions.setEmbedAuthor(message.author.tag, message.author.displayAvatarURL());
 
+            var [ , userID, ...reason ] = messageArr;
+            
             if (!message.member.permissions.has('KICK_MEMBERS')) return message.channel.send({ embeds: [embeds.noKickPermissions] });
-            if (args.length === 0) return message.channel.send({ embeds: [embeds.kickHelp] });
+            if (!userID) return message.channel.send({ embeds: [embeds.kickHelp] });
             
-            args[0] = args[0].replace(/[^0-9]/g, '');
-            
-            var member = message.guild.members.cache.get(args[0]);
-            args[0] = '';
+            userID = userID.replace(/[^0-9]/g, ''); // Removes every character except the numbers using regex. g - finds all occurences
+            var member = message.guild.members.cache.get(userID);
 
-            functions.setEmbedDescription(embeds.kickSucceeded, `${emotes.successEmote} ${member} had to be removed by force`);
+            functions.setEmbedDescription(embeds.kickSucceeded,`${emotes.successEmote} ${member} had to be removed by force`);
             functions.setEmbedDescription(embeds.kickFailed, `${emotes.errorEmote} ${member} was stronger than me`);
 
-            var reason = [ ...args ]
+            reason = reason
                 .toString()
-                .slice(1)
                 .replaceAll(',', ' ');
 
-            console.log(...args);
             console.log(reason);
 
             if (member) {
@@ -112,22 +116,20 @@ client.on('messageCreate', (message) => {
         // Bans the member with the specified ID
         case 'ban':
             message.delete();
-            functions.setEmbedAuthor(message.author.tag, message.author.displayAvatarURL());
+
+            var [ , userID, ...reason ] = messageArr;
             
-            if (args.length === 0) return message.channel.send({ embeds: [embeds.banHelp] });
             if (!message.member.permissions.has('BAN_MEMBERS')) return message.channel.send({ embeds: [embeds.noBanPermissions] });
-        
-            args[0] = args[0].replace(/[^0-9]/g, '');
+            if (!userID) return message.channel.send({ embeds: [embeds.banHelp] });
             
-            var member = message.guild.members.cache.get(args[0]);
-            args[0] = '';
+            userID = userID.replace(/[^0-9]/g, ''); // Removes every character except the numbers using regex. g - finds all occurences
+            var member = message.guild.members.cache.get(userID);
 
             functions.setEmbedDescription(embeds.banSucceeded, `${emotes.successEmote} ${member} was banished to the far lands`);
             functions.setEmbedDescription(embeds.banFailed, `${emotes.errorEmote} ${message.author} hmm, seems like I lost my ban hammer`);
 
-            var reason = [ ...args ]
+            reason = reason
                 .toString()
-                .slice(1)
                 .replaceAll(',', ' ');
 
             if (member) {
@@ -142,31 +144,35 @@ client.on('messageCreate', (message) => {
         // Unbans the member with the specified ID
         case 'unban':
             message.delete();
-            functions.setEmbedAuthor(message.author.tag, message.author.displayAvatarURL());
             
-            if (args.length === 0) return message.channel.send({ embeds: [embeds.banHelp] });
+            var [ , userID, ...reason ] = messageArr;
+            
             if (!message.member.permissions.has('BAN_MEMBERS')) return message.channel.send({ embeds: [embeds.noBanPermissions] });
+            if (!userID) return message.channel.send({ embeds: [embeds.banHelp] });
             
-            userID = args[0].replace(/[^0-9]/g, '').toString();
-            args[0] = '';
+            userID = userID.replace(/[^0-9]/g, ''); // Removes every character except the numbers using regex. g - finds all occurences
             
-            var reason = [ ...args ]
+            functions.setEmbedDescription(embeds.unbanFailed, `${emotes.errorEmote} ${message.author} hmm, seems like I lost my ban hammer`);
+
+            reason = reason
                 .toString()
-                .slice(1)
                 .replaceAll(',', ' ');
             
             var bannedUsersList = message.guild.bans;
 
-            if (bannedUsersList.cache.has(userID)) {
-                bannedUsersList.remove(userID, reason)
-                    .then((user) => {
-                        functions.setEmbedDescription(embeds.banSucceeded, `${emotes.successEmote} ${user.username} can now return from the far lands`);
-                        message.channel.send({ embeds: [embeds.banSucceeded] })
-                    })
-                    .catch((err) => message.channel.send({ embeds: [embeds.unbanFailed] }));
-            } else {
-                message.channel.send({ embeds: [embeds.memberNotFound] });
-            }
+            bannedUsersList.remove(userID, reason)
+                .then((user) => {
+                    functions.setEmbedDescription(embeds.unbanSucceeded, `${emotes.successEmote} ${user.username} can now return from the far lands`);
+                    message.channel.send({ embeds: [embeds.unbanSucceeded] });
+                })
+                .catch((err) => { 
+                    if (err.message == unknownBanError) { 
+                        message.channel.send({ embeds: [embeds.memberNotFound] });
+                    } else if (err.message == resolveError) {
+                        message.channel.send({ embeds: [embeds.memberNotFound] });
+                    } else {
+                        message.channel.send({ embeds: [embeds.unbanFailed] });
+                }});
             break;
     }
 });
