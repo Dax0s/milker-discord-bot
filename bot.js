@@ -69,9 +69,10 @@ client.on('messageCreate', (message) => {
             
             if (!newPrefix) return message.channel.send(`The prefix for this server is ${prefix}`);
             
-            configJson.prefix = newPrefix;
-            configJson = JSON.stringify(configJson, null, '\t');
-            fs.writeFile(configJsonPath, configJson, (err) => err && console.error(err));
+            prefix = newPrefix;
+            configJson.prefix = prefix;
+            configJsonStringified = JSON.stringify(configJson, null, '\t');
+            fs.writeFile(configJsonPath, configJsonStringified, (err) => err && console.error(err));
             break;
 
         // Sends the avatar of the user whom used the command

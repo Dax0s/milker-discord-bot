@@ -10,5 +10,8 @@
     "minimalist": "^1.0.0",
     "minimist": "^1.2.5",
     "node": "^16.6.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
   }
 }
