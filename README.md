@@ -74,13 +74,13 @@ and at bot permissions, select 'Administrator'.
 
 ![Bot permissions](https://github.com/Dax0s/milker-discord-bot/blob/media/ReadMeImages/BotPermissions.png?raw=true)
 
-Later, I'll see which individual permissions does the bot need, but for now, I'll just leave it at 'Administrator', since I'm still adding new features to it.
+Later, I'll see which individual permissions the bot needs, but for now, I'll just leave it at 'Administrator', since I'm still adding new features to it.
 
 Finally, click the blue button saying Copy and enter the copied link in a new browser tab.
 
 ![Invite link](https://github.com/Dax0s/milker-discord-bot/blob/media/ReadMeImages/InviteLink.png?raw=true)
 
-After that, just select the server, to which you want to add the bot, click 'Continue' and the 'Authorize'.
+After that, just select the server, to which you want to add the bot, click 'Continue', and then 'Authorize'.
 
 ![Add to server](https://github.com/Dax0s/milker-discord-bot/blob/media/ReadMeImages/AddToServer.png?raw=true)
 ![Add to server 2](https://github.com/Dax0s/milker-discord-bot/blob/media/ReadMeImages/AddToServer2.png?raw=true)
